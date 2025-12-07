@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: "In-Context Neurofeedback: Can Large Language Models Truly Control Their Internal Representations?"
-description: Whether large language models (LLMs) can control their own internal representations matters for understanding machine metacognition and for AI safety. A recent study accepted at NeurIPS 2025 has claimed that LLMs can indeed control these internal representations. However, this study cannot rule out the possibility that such control relies on superficial mechanisms because the control targets are not privileged. To address this problem, we propose in-context neurofeedback, a method that uses multi-turn conversation to control internal representations without parameter updates while ensuring privileged access requirements. While our experiments did not find evidence that LLMs can control their internal representations, we provided a methodological framework for future investigations into machine metacognition.
+description: Whether large language models (LLMs) can control their own internal representations matters for understanding machine metacognition and for AI safety. A recent study accepted at NeurIPS 2025 claimed that LLMs can control these internal representations, but this study cannot rule out the possibility that such control relies on superficial mechanisms because the control targets are not privileged. We propose in-context neurofeedback, a method that uses multi-turn conversation to control internal representations while ensuring privileged access requirements, and provide a methodological framework for future investigations into machine metacognition.
 date: 2026-04-27
 future: true
 htmlwidgets: true
