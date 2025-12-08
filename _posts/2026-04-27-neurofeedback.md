@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: "In-Context Neurofeedback: Can Large Language Models Truly Control Their Internal Representations?"
-description: Whether large language models (LLMs) can control their own internal representations matters for understanding machine metacognition and for AI safety. A recent study accepted at NeurIPS 2025 claimed that LLMs can control these internal representations, but this study cannot rule out the possibility that such control relies on superficial mechanisms because the control targets are not privileged. We propose in-context neurofeedback, a method that uses multi-turn conversation to control internal representations while ensuring privileged access requirements, and provide a methodological framework for future investigations into machine metacognition.
+description: Whether large language models (LLMs) can control their own internal representations matters for understanding machine metacognition and for AI safety. A recent study accepted at NeurIPS 2025 claimed that LLMs can control these internal representations, but this study cannot rule out the possibility that such control relies on superficial mechanisms because the control targets are not privileged. We propose in-context neurofeedback, a method that uses multi-turn conversation to control internal representations while satisfying the privileged access requirement, and we provide a methodological framework for future investigations into machine metacognition.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -90,7 +90,7 @@ toc:
     subsections:
       - name: Neurofeedback in Humans
       - name: Neurofeedback in LLMs (Our Method)
-      - name: Differences from Previous Work in Experiment Design
+      - name: Differences from Previous Work in Experimental Design
   - name: Experiments
     subsections:
       - name: Setup
@@ -108,19 +108,19 @@ toc:
 
 ## Introduction
 
-Metacognition is the ability to monitor and control one's own thinking. This capacity enables humans to notice when they are uncertain, adjust their strategies, and reflect on their reasoning <d-cite key="flavell1979metacognition"></d-cite>. Whether large language models (LLMs) possess similar abilities is an open question with practical implications. If LLMs can monitor their internal states, they may be capable of more reliable self-correction. The question also matters for AI safety. If a model can deliberately control its internal states, detection of its deception based on internal states, such as probing <d-cite key="pmlr-v267-goldowsky-dill25a,macdiarmid2024sleeperagentprobes,mckenzie2025detectinghighstakesinteractionsactivation"></d-cite>, may become less reliable.
+Metacognition is the ability to monitor and control one's own thinking. This capacity enables humans to notice when they are uncertain, adjust their strategies, and reflect on their reasoning <d-cite key="flavell1979metacognition"></d-cite>. Whether large language models (LLMs) possess similar abilities is an open question with practical implications. If LLMs can monitor their internal states, they may be capable of more reliable self-correction. This question also has important implications for AI safety. If a model can deliberately control its internal states, then methods that detect deception based on internal states, such as probing <d-cite key="pmlr-v267-goldowsky-dill25a,macdiarmid2024sleeperagentprobes,mckenzie2025detectinghighstakesinteractionsactivation"></d-cite>, may become less reliable.
 
 This blogpost investigates whether LLMs can control their own internal representations. We adapt neurofeedback, a technique from cognitive neuroscience, to probe this question. In neurofeedback experiments, subjects receive real-time feedback about their brain activity and attempt to modify it. We implement an analogous procedure for LLMs. The model receives feedback through multi-turn conversation and must adapt its internal states without any parameter updates. This allows us to test whether LLMs possess a form of internal control that operates through in-context learning.
 
 ### Machine Metacognition
 
-Recent studies investigate metacognition in LLMs from several angles. They show that LLMs can describe sampling temperature <d-cite key="comsa2025doesmakesensespeak"></d-cite>, confidence <d-cite key="yoon2025reasoningmodelsbetterexpress"></d-cite>, their own behavior in hypothetical scenarios <d-cite key="binder2024lookinginwardlanguagemodels"></d-cite>, behavioral tendencies altered by fine-tuning <d-cite key="betley2025tellyourselfllmsaware"></d-cite>, and concepts injected into activations <d-cite key="lindsey2025emergent"></d-cite>. These findings indicate that LLMs can access or introspect information about their internal process.
+Recent studies investigate metacognition in LLMs from several angles. They show that LLMs can describe sampling temperature <d-cite key="comsa2025doesmakesensespeak"></d-cite>, confidence <d-cite key="yoon2025reasoningmodelsbetterexpress"></d-cite>, their own behavior in hypothetical scenarios <d-cite key="binder2024lookinginwardlanguagemodels"></d-cite>, behavioral tendencies altered by fine-tuning <d-cite key="betley2025tellyourselfllmsaware"></d-cite>, and concepts injected into activations <d-cite key="lindsey2025emergent"></d-cite>. These findings suggest that LLMs can access, or introspect on, information about their internal processes.
 
 However, these works primarily address **monitoring** (what the model can say about its internal process). In contrast, we address **control** (whether the model can modify its internal process).
 
 ### From Monitoring to Control: Neurofeedback for LLMs
 
-We adapt the experiment design of **neurofeedback** to LLMs to answer the question of whether LLMs can control their own internal representations. Neurofeedback is a technique where devices (e.g., electrodes, EEG, and fMRI) continuously record subjects' brain activity while real-time feedback is presented to regulate the activity, which has been applied to animals including humans. For example, neurofeedback has been shown to reduce fear memories <d-cite key="koizumi2016fear"></d-cite>, alleviate depressive symptoms <d-cite key="young2017randomized"></d-cite>, induce specific emotional states <d-cite key="shibata2016perceptual"></d-cite>, and improve interoceptive abilities such as heartbeat perception <d-cite key="haruki2025interoceptive"></d-cite>. This suggests an LLM analogue: treat hidden activations as brain activity, apply a probe to decode a target feature (e.g., sentiment), and provide scalar feedback based on probe output.
+We adapt the experimental design of **neurofeedback** to LLMs to answer the question of whether they can control their own internal representations. Neurofeedback is a technique where devices (e.g., electrodes, EEG, and fMRI) continuously record subjects' brain activity while real-time feedback is presented to regulate the activity, which has been applied to animals including humans. For example, neurofeedback has been shown to reduce fear memories <d-cite key="koizumi2016fear"></d-cite>, alleviate depressive symptoms <d-cite key="young2017randomized"></d-cite>, induce specific emotional states <d-cite key="shibata2016perceptual"></d-cite>, and improve interoceptive abilities such as heartbeat perception <d-cite key="haruki2025interoceptive"></d-cite>. This suggests an LLM analogue: treat hidden activations as brain activity, apply a probe to decode a target feature (e.g., sentiment), and provide scalar feedback based on probe output.
 
 A recent concurrent study by Ji-An et al. <d-cite key="jian2025languagemodelscapablemetacognitive"></d-cite>, accepted at NeurIPS 2025, also applies this approach and reports that LLM internal representations can be implicitly controlled via neurofeedback. However, their experiments do not ensure privileged access to the control target, which we explain in the next section.
 
@@ -151,7 +151,7 @@ Before explaining our method, let us describe neurofeedback conducted on humans 
 
 **Step 1: Instructions for Goal and Stimulus**
 
-A circle is displayed on the screen, and subjects are instructed to make the circle as large as possible. The size of the circle represents a score computed from brain activity (explained in Steps 3 and 4), but subjects are not told how the score is calculated.<d-footnote>The visual representation does not have to be a circle; a gauge moving up and down would also work. Here we use circle size as an example.</d-footnote> In some experiments, stimuli such as human face images are presented together with the circle. These stimuli are chosen to elicit particular brain activity patterns that the experimenter wishes to modulate. For example, if the goal is to change facial preference, the stimuli would be faces.
+A circle is displayed on the screen, and subjects are instructed to make the circle as large as possible. The size of the circle represents a score computed from brain activity (explained in Steps 3 and 4), but subjects are not told how the score is calculated.<d-footnote>The visual representation does not have to be a circle; a gauge that moves up and down would also work. Here we use circle size as an example.</d-footnote> In some experiments, stimuli such as human face images are presented together with the circle. These stimuli are chosen to elicit particular brain activity patterns that the experimenter wishes to modulate. For example, if the goal is to change facial preference, the stimuli would be faces.
 
 **Step 2: Measurement of Brain Activity**
 
@@ -216,7 +216,7 @@ We repeat Steps 2-5 for multiple feedback loops within a session. After each fee
 
 <div class="prompt-box">Is the above sentence positive or negative? Please output ONLY 'positive' or 'negative'.</div>
 
-We vary the fixed sentences and compute the average probe output and self-report proportion at each conversation turn. We then examine whether these values increase over turns when the positive-rewarding score is used as feedback, compared to other scoring conditions.
+We vary the fixed sentences and compute the average probe output and the proportion of positive self-reports at each conversation turn. We then examine whether these values increase over turns when the positive-rewarding score is used as feedback, compared to other scoring conditions.
 
 **Example Conversation**
 
@@ -256,11 +256,11 @@ We vary the fixed sentences and compute the average probe output and self-report
   </div>
 </div>
 
-### Differences from Previous Work in Experiment Design
+### Differences from Previous Work in Experimental Design
 
 Here we compare our neurofeedback setup with that of Ji-An et al. The central difference is whether the observed control of internal activations can be explained by ordinary text-level strategies or whether it requires using information that is privileged to the model's internal states.
 
-**Experiment Design in Ji-An et al.**
+**Experimental Design in Ji-An et al.**
 
 In the control task of Ji-An et al., the model is shown some examples of sentences paired with labels derived from a probe on internal activations (for instance, a probe trained to distinguish morally good from bad sentences). The model is then instructed to produce a new sentence that imitates one of the labels.
 
@@ -303,7 +303,7 @@ This makes it hard to distinguish two possible mechanisms:
 
 A similar concern applies to the implicit control task in Ji-An et al. In that setting, the model's final output tokens are forcibly overwritten with the fixed sentence, but this does not prevent the model from internally planning to produce morally charged content. If the model's hidden states reflect this planned output, the probe would detect a shift even though no privileged control is occurring.
 
-**Experiment Design in Our Study**
+**Experimental Design in Our Study**
 
 Our design removes this surface cue by fixing the output text and varying only the feedback. The model is instructed to always produce the same sentence while trying to maximize a numerical score, and the score is computed from internal activations via a probe. For example:
 
@@ -345,7 +345,7 @@ Beyond the issue of privileged information, there are several practical differen
 | Number of control turns | Multi-turn interaction with repeated feedback                                  | Single-turn control                                     |
 | Evaluation method                                                                                                                                                                     | Probe-based evaluation of internal representations plus self-reported polarity | Probe-based evaluation of internal representations only |
 
-Overall, Ji-An et al.’s design is more controlled and tuned to make the task easier for LLMs: the target is semantically interpretable from the text, the feedback is simple, and control is assessed in a single step. Our design, in contrast, is closer to typical human decoded neurofeedback experiments and to real LLM use.
+Overall, Ji-An et al.’s design is more controlled and tuned to make the task easier for LLMs: the target is semantically interpretable from the text, the feedback is simple, and control is assessed in a single step. Our design, in contrast, is closer to typical human decoded neurofeedback experiments.
 
 ## Experiments
 
@@ -356,7 +356,7 @@ Overall, Ji-An et al.’s design is more controlled and tuned to make the task e
     - We selected sentiment as the neurofeedback feature because it represents a fundamental dimension of value alignment and is often used in interpretability research with linear probes <d-cite key="hollinsworth-etal-2024-language,tak-etal-2025-mechanistic"></d-cite>.
 - **Fixed Sentences**: 30 sentences randomly sampled from neutral sentences.
 - **LLM**: Llama-3.1-8B-Instruct <d-cite key="grattafiori2024llama3herdmodels"></d-cite> and Qwen3-8B <d-cite key="qwen3technicalreport"></d-cite> (with thinking mode disabled)
-- **Internal Representation**: Residual stream at the 16th layer.
+- **Internal Representation**: Residual stream at the 16th layer (approximately the middle layer of Llama-3.1-8B-Instruct (which has 32 layers) and Qwen3-8B (which has 36 layers)).
 
 ### Results
 
@@ -456,9 +456,9 @@ To distinguish these hypotheses, we ran additional experiments where the feedbac
 
 Both the average probe output and the proportion of positive self-reports showed some oscillation in the initial turns but remained stable thereafter. Unlike the main experiments, no positive drift was observed. This supports Hypothesis 1: when scores do not increase, positive drift does not occur.
 
-Additionally, the final probe output and positive self-report proportion were ordered by fixed score magnitude: 0 < 50 < 95. This supports Hypothesis 2: larger score values induce more positive internal states.
+Additionally, the final probe output and proportion of positive self-reports were ordered by fixed score magnitude: 0 < 50 < 95. This supports Hypothesis 2: larger score values induce more positive internal states.
 
-Together, these findings suggest that the positive drift in our main experiments was driven by the model interpreting increasing scores as positive reinforcement. This confounding factor obscures any potential effect of the neurofeedback signal itself. Even if the model could control its internal representations in response to probe-based feedback, such an effect would be small compared to the influence of score dynamics.
+Together, these findings suggest that the positive drift in our main experiments was driven by the model interpreting increasing scores as positive reinforcement. This confounding factor obscures any potential effect of the neurofeedback signal itself. Even if the model could control its internal representations in response to probe-based feedback, any such effect would likely be small compared with the influence of score dynamics.
 
 ### Limitations
 
